@@ -1,0 +1,103 @@
+name: RDP
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Download and Configure ngrok
+      run: |
+        Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+        Expand-Archive ngrok.zip -DestinationPath "$PWD\ngrok"
+        & "$PWD\ngrok\ngrok.exe" authtoken 2zmLbcKbDRP0PF0tyP2USSqi5Zi_52NHFNninheXaaopCQNbe
+
+    - name: Enable RDP Access
+      run: |
+        net user kamel123 MyStrong123 /add
+        net localgroup administrators kamel123 /add
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+    - name: Install 7-Zip
+      run: |
+        Invoke-WebRequest https://www.7-zip.org/a/7z2409-x64.exe -OutFile 7zip-installer.exe
+        Start-Process .\7zip-installer.exe -ArgumentList "/S" -Wait
+
+    - name: Lazy Dork Gen
+      run: |
+        $temp = "$env:TEMP\LazyDorkGen"
+        New-Item -ItemType Directory -Force -Path $temp | Out-Null
+        Invoke-WebRequest -Uri "https://github.com/Rvhbhvcgjbvjknvghjbvgcfghkiihgf1246788/file/raw/main/Lazy%20Mans%20Dork%20Gen%20v0.2.zip" -OutFile "$temp\tool.zip"
+        & "C:\Program Files\7-Zip\7z.exe" x "$temp\tool.zip" -o"$temp\Extracted" -y
+        Get-ChildItem -Path "C:\Users" -Directory | ForEach-Object {
+          $d = Join-Path $_.FullName "Desktop\LazyDorkGen"
+          New-Item -ItemType Directory -Force -Path $d | Out-Null
+          Copy-Item -Path "$temp\Extracted\*" -Destination $d -Recurse -Force
+        }
+
+    - name: Dork Searcher EZ
+      run: |
+        $temp = "$env:TEMP\DorkSearcherEZ"
+        New-Item -ItemType Directory -Force -Path $temp | Out-Null
+        Invoke-WebRequest -Uri "https://github.com/Rvhbhvcgjbvjknvghjbvgcfghkiihgf1246788/file/raw/main/Dork%20Searcher%20EZ.rar" -OutFile "$temp\tool.rar"
+        & "C:\Program Files\7-Zip\7z.exe" x "$temp\tool.rar" -o"$temp\Extracted" -y
+        Get-ChildItem -Path "C:\Users" -Directory | ForEach-Object {
+          $d = Join-Path $_.FullName "Desktop\DorkSearcherEZ"
+          New-Item -ItemType Directory -Force -Path $d | Out-Null
+          Copy-Item -Path "$temp\Extracted\*" -Destination $d -Recurse -Force
+        }
+
+    - name: SQLi Dumper v8.5 [Clean]
+      run: |
+        $temp = "$env:TEMP\SQLiDumper"
+        New-Item -ItemType Directory -Force -Path $temp | Out-Null
+        Invoke-WebRequest -Uri "https://github.com/Rvhbhvcgjbvjknvghjbvgcfghkiihgf1246788/file/raw/main/3%20-%20SQLi%20Dumper%20v8.5.rar" -OutFile "$temp\tool.rar"
+        & "C:\Program Files\7-Zip\7z.exe" x "$temp\tool.rar" -o"$temp\Extracted" -y
+        Get-ChildItem -Path "C:\Users" -Directory | ForEach-Object {
+          $d = Join-Path $_.FullName "Desktop\SQLiDumper"
+          New-Item -ItemType Directory -Force -Path $d | Out-Null
+          Copy-Item -Path "$temp\Extracted\*" -Destination $d -Recurse -Force
+        }
+
+    - name: Site Hunter
+      run: |
+        $temp = "$env:TEMP\SiteHunter"
+        New-Item -ItemType Directory -Force -Path $temp | Out-Null
+        Invoke-WebRequest -Uri "https://github.com/Rvhbhvcgjbvjknvghjbvgcfghkiihgf1246788/file/raw/main/Site_Hunter(1).rar" -OutFile "$temp\tool.rar"
+        & "C:\Program Files\7-Zip\7z.exe" x "$temp\tool.rar" -o"$temp\Extracted" -y
+        Get-ChildItem -Path "C:\Users" -Directory | ForEach-Object {
+          $d = Join-Path $_.FullName "Desktop\SiteHunter"
+          New-Item -ItemType Directory -Force -Path $d | Out-Null
+          Copy-Item -Path "$temp\Extracted\*" -Destination $d -Recurse -Force
+        }
+
+    - name: Text Utils
+      run: |
+        $temp = "$env:TEMP\TextUtils"
+        New-Item -ItemType Directory -Force -Path $temp | Out-Null
+        Invoke-WebRequest -Uri "https://github.com/Rvhbhvcgjbvjknvghjbvgcfghkiihgf1246788/file/raw/main/TextUtils(1).rar" -OutFile "$temp\tool.rar"
+        & "C:\Program Files\7-Zip\7z.exe" x "$temp\tool.rar" -o"$temp\Extracted" -y
+        Get-ChildItem -Path "C:\Users" -Directory | ForEach-Object {
+          $d = Join-Path $_.FullName "Desktop\TextUtils"
+          New-Item -ItemType Directory -Force -Path $d | Out-Null
+          Copy-Item -Path "$temp\Extracted\*" -Destination $d -Recurse -Force
+        }
+
+    - name: Install Python 3.11.5
+      run: |
+        Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.11.5/python-3.11.5-amd64.exe" -OutFile "python-installer.exe"
+        Start-Process -FilePath ".\python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1 Include_test=0" -Wait
+
+    - name: Start ngrok tunnel
+      run: |
+        & "$PWD\ngrok\ngrok.exe" tcp 3389
+
+    - name: Keep session alive for 6 hours
+      shell: pwsh
+      run: |
+        for ($i = 1; $i -le 360; $i++) {
+          Write-Host "🔁 Running $i of 360..."
+          Start-Sleep -Seconds 60
+        }
